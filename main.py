@@ -1,10 +1,11 @@
-from PyPDF2 import PdfWriter, PdfReader
+from PyPDF2 import PdfWriter, PdfReader, PdfMerger
 from PyPDF2.generic import RectangleObject, AnnotationBuilder
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from math import ceil
 
 def openFile(fileName):
 	global writer, reader
@@ -19,7 +20,11 @@ def getNewContent():
 		if topic == "finish":
 			loop = not loop
 		elif topic == "del":
-			allContent.pop(-1)
+			delete = input("Topic to delete : ")
+			try:	
+				del allContent[delete]
+			except:
+				print("Topic not found")
 		else:
 			page = input("Page : ")
 			try:
@@ -61,29 +66,29 @@ def writeFile(fileName, allContent, contentNum = 0):
 	contentPage = PdfReader(packet)
 	writer.add_page(contentPage.pages[0])
 
-	x = 795
 	pn = 0
-	for i in allContent.values():
-		if x < 75:
+	x = 795
+	for i in range(len(allContent)):
+		annotation = AnnotationBuilder.link(
+				rect = (0,x,525,x+15),
+				target_page_index = list(allContent.values())[i] + ceil(len(allContent)/37) - 1
+				)
+		x -= 20 
+		writer.add_annotation(page_number=pn, annotation=annotation)
+		if i == 36:
 			x = 795
 			pn += 1
 
-		annotation = AnnotationBuilder.link(
-			rect = (0,x,525,x+15),
-			target_page_index = i
-		)
-		x -= 20 
-		writer.add_annotation(page_number=pn, annotation=annotation)
 	if contentNum == 0:	
 		writer.append_pages_from_reader(reader) 
 	elif contentNum > 0:
 		for i in range(contentNum,len(reader.pages)):
 			writer.add_page(reader.pages[i])
 
-def saveFile():
+def saveFile(saveF):
 	newFileName = input("New file Name : ").strip() + '.pdf'
 	with open(newFileName, 'wb') as file:
-		writer.write(file)
+		saveF.write(file)
 	
 def getContentPage(contentNum):
 	allContent = dict()
@@ -120,17 +125,44 @@ def editContent(allContent):
 	allContent = dict(sorted(allContent.items(), key=lambda x:x[1]))
 	return allContent
 
+def mergeFile():
+	mergeList = []
+	loop = True
+	merger = PdfMerger()
+
+	while loop:
+		mergeName = input("Merge file name : ")
+		if mergeName == "del":
+			mergeList = []
+		elif mergeName == "finish":
+			loop = not loop
+		for i in mergeList:
+			print(i)
+
+	for f in mergeList:
+		try:
+			merger.append(PdfReader(open(f,'rb')))
+		except:
+			print(f"{f} not found")
+
+	return merger
+
 if __name__ == "__main__":
-	fileName = input("File name : ").strip()
-	openFile(fileName)
-	func = input("1. Add content page\n2.Change content page\n>> ")
+	func = input("1. Add content page\n2.Change content page\n3.Merge file\n>> ")
 	if func == "1":
+		fileName = input("File name : ").strip()
+		openFile(fileName)
 		allContent = getNewContent()
 		writeFile(fileName, allContent)
-		saveFile()
+		saveFile(writer)
 	elif func == "2":
+		fileName = input("File name : ").strip()
+		openFile(fileName)
 		contentNum = int(input("Content page number : "))
 		allContent = getContentPage(contentNum)
 		allContent = editContent(allContent)
 		writeFile(fileName, allContent, contentNum)
-		saveFile()
+		saveFile(writer)
+	elif func == "3":
+		merger = mergeFile()
+		saveFile(merger)
