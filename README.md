@@ -6,7 +6,7 @@
 - Change the existing content page
 	- from old content page
 	- from txt file
-- Merge file (broken)
+- Merge file
 - Save content page to txt file
 
 ## How it work

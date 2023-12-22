@@ -136,12 +136,14 @@ def mergeFile():
 			mergeList = []
 		elif mergeName == "finish":
 			loop = not loop
-		for i in mergeList:
-			print(i)
+		else:
+			mergeList.append(mergeName)
+
+	print(mergeList)
 
 	for f in mergeList:
 		try:
-			merger.append(PdfReader(open(f,'rb')))
+			merger.append(open(f,'rb'))
 		except:
 			print(f"{f} not found")
 
