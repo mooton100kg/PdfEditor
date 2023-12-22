@@ -1,6 +1,6 @@
 from PyPDF2 import PdfWriter, PdfReader, PdfMerger
 from PyPDF2.generic import RectangleObject, AnnotationBuilder
-import io
+import io,json
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
@@ -86,7 +86,7 @@ def writeFile(fileName, allContent, contentNum = 0):
 			writer.add_page(reader.pages[i])
 
 def saveFile(saveF):
-	newFileName = input("New file Name : ").strip() + '.pdf'
+	newFileName = input("New file Name : ") or "new file.pdf"
 	with open(newFileName, 'wb') as file:
 		saveF.write(file)
 	
@@ -147,8 +147,19 @@ def mergeFile():
 
 	return merger
 
+def saveContentToFile(allContent):
+	saveFileName = input("Save file name : ") or "Content list.txt"
+	with open(saveFileName, 'w') as file:
+		file.write(json.dumps(allContent))
+
+def openContentFile(fn):
+	with open(fn) as file:
+		dataContent = json.loads(file.read())
+
+	return dataContent
+
 if __name__ == "__main__":
-	func = input("1. Add content page\n2.Change content page\n3.Merge file\n>> ")
+	func = input("1. Add content page\n2. Change content page\n3. Merge file\n4. Save content from file\n>> ")
 	if func == "1":
 		fileName = input("File name : ").strip()
 		openFile(fileName)
@@ -159,10 +170,23 @@ if __name__ == "__main__":
 		fileName = input("File name : ").strip()
 		openFile(fileName)
 		contentNum = int(input("Content page number : "))
-		allContent = getContentPage(contentNum)
+		option = input("from (old content) / (txt) : ")
+	
+		if option == "old content":
+			allContent = getContentPage(contentNum)
+		elif option == "txt":
+			fn = input("Content txt file name : ")
+			allContent = openContentFile(fn)
+			print(allContent)
 		allContent = editContent(allContent)
 		writeFile(fileName, allContent, contentNum)
 		saveFile(writer)
 	elif func == "3":
 		merger = mergeFile()
 		saveFile(merger)
+	elif func == "4":
+		fileName = input("File name : ").strip()
+		openFile(fileName)
+		contentNum = int(input("Content page number : "))
+		allContent = getContentPage(contentNum)
+		saveContentToFile(allContent)	
