@@ -1,9 +1,11 @@
 from PyPDF2 import PdfWriter, PdfReader, PdfMerger
 from PyPDF2.generic import AnnotationBuilder
-import io,json
+import io,json,os,sys
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from math import ceil
+
+script_directory = os.path.dirname(os.path.abspath(sys.argv[0])) + "/"
 
 def openFile(fileName):
 	global writer, reader
@@ -85,7 +87,8 @@ def writeFile(fileName, allContent, contentNum = 0):
 			writer.add_page(reader.pages[i])
 
 def saveFile(saveF):
-	newFileName = input("New file Name (new file.pdf): ") or "new file.pdf"
+	newFileName = input("New file Name (new file.pdf): ") or "new_file.pdf"
+	newFileName = script_directory + newFileName
 	with open(newFileName, 'wb') as file:
 		saveF.write(file)
 	
@@ -131,7 +134,7 @@ def mergeFile():
 	
 	print("finish : to finish entering information\ndel : delete file name")
 	while loop:
-		mergeName = input("Merge file name : ")
+		mergeName = input("Merge file name : ").strip()
 		if mergeName == "del":
 			removeFile = input("File name : ")
 			mergeList.remove(removeFile)
@@ -152,7 +155,8 @@ def mergeFile():
 	return merger
 
 def saveContentToFile(allContent):
-	saveFileName = input("Save file name : ") or "Content list.txt"
+	saveFileName = input("Save file name : ") or "Content_list.txt"
+	saveFileName = script_directory + saveFileName
 	with open(saveFileName, 'w') as file:
 		file.write(json.dumps(allContent))
 
