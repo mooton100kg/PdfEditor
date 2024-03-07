@@ -1,10 +1,8 @@
 from PyPDF2 import PdfWriter, PdfReader, PdfMerger
-from PyPDF2.generic import RectangleObject, AnnotationBuilder
+from PyPDF2.generic import AnnotationBuilder
 import io,json
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 from math import ceil
 
 def openFile(fileName):
@@ -12,6 +10,7 @@ def openFile(fileName):
 
 	writer = PdfWriter()
 	reader = PdfReader(open(fileName,'rb'))
+
 def getNewContent():
 	allContent = dict()
 	loop = True
@@ -86,7 +85,7 @@ def writeFile(fileName, allContent, contentNum = 0):
 			writer.add_page(reader.pages[i])
 
 def saveFile(saveF):
-	newFileName = input("New file Name : ") or "new file.pdf"
+	newFileName = input("New file Name (new file.pdf): ") or "new file.pdf"
 	with open(newFileName, 'wb') as file:
 		saveF.write(file)
 	
@@ -129,11 +128,14 @@ def mergeFile():
 	mergeList = []
 	loop = True
 	merger = PdfMerger()
-
+	
+	print("finish : to finish entering information\ndel : delete file name")
 	while loop:
 		mergeName = input("Merge file name : ")
 		if mergeName == "del":
-			mergeList = []
+			removeFile = input("File name : ")
+			mergeList.remove(removeFile)
+			print(mergeList)
 		elif mergeName == "finish":
 			loop = not loop
 		else:
@@ -165,15 +167,16 @@ if __name__ == "__main__":
 	if func == "1":
 		fileName = input("File name : ").strip()
 		openFile(fileName)
+		print("finish : to finish enter information\ndel : delete information")
 		allContent = getNewContent()
 		writeFile(fileName, allContent)
 		saveFile(writer)
 	elif func == "2":
 		fileName = input("File name : ").strip()
 		openFile(fileName)
-		contentNum = int(input("Content page number : "))
 		option = input("from (old content) / (txt) : ")
-	
+		contentNum = int(input("Content page number : "))
+
 		if option == "old content":
 			allContent = getContentPage(contentNum)
 		elif option == "txt":
@@ -192,3 +195,5 @@ if __name__ == "__main__":
 		contentNum = int(input("Content page number : "))
 		allContent = getContentPage(contentNum)
 		saveContentToFile(allContent)	
+	else:
+		print("closing program")
