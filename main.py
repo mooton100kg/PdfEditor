@@ -5,7 +5,10 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from math import ceil
 
-script_directory = os.path.dirname(os.path.abspath(sys.argv[0])) + "/"
+def saveFilePath():
+	filePath = input("Save file path (same location as this program): ") or (os.path.dirname(os.path.abspath(sys.argv[0])) + "/")
+
+	return filePath
 
 def openFile(fileName):
 	global writer, reader
@@ -87,8 +90,9 @@ def writeFile(fileName, allContent, contentNum = 0):
 			writer.add_page(reader.pages[i])
 
 def saveFile(saveF):
-	newFileName = input("New file Name (new file.pdf): ") or "new_file.pdf"
-	newFileName = script_directory + newFileName
+	newFileName = input("New file Name (new file.pdf): ").strip() or "new_file.pdf"
+	file_path = saveFilePath()
+	newFileName = file_path + newFileName
 	with open(newFileName, 'wb') as file:
 		saveF.write(file)
 	
@@ -155,8 +159,9 @@ def mergeFile():
 	return merger
 
 def saveContentToFile(allContent):
-	saveFileName = input("Save file name : ") or "Content_list.txt"
-	saveFileName = script_directory + saveFileName
+	saveFileName = input("Save file name (Content_list.txt): ").strip() or "Content_list.txt"
+	file_path = saveFilePath()
+	saveFileName = file_path + saveFileName
 	with open(saveFileName, 'w') as file:
 		file.write(json.dumps(allContent))
 
@@ -184,7 +189,7 @@ if __name__ == "__main__":
 		if option == "old content":
 			allContent = getContentPage(contentNum)
 		elif option == "txt":
-			fn = input("Content txt file name : ")
+			fn = input("Content txt file name : ").strip()
 			allContent = openContentFile(fn)
 			print(allContent)
 		allContent = editContent(allContent)
